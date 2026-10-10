@@ -1,0 +1,7 @@
+# 统一换行符（跨 Windows / macOS / Linux）
+* text=auto eol=lf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.zip binary

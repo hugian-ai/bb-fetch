@@ -1,0 +1,19 @@
+# 忽略产物与本地数据
+dist/
+__pycache__/
+*.pyc
+*.pyo
+
+# 本地配置与凭据（绝不入库）
+config.json
+.env
+cookies*.txt
+*_cookies.txt
+credentials.json
+.bb-fetch/
+state/
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store

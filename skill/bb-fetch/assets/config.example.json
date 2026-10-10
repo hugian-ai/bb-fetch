@@ -1,0 +1,23 @@
+{
+  "_comment": "bb-fetch 配置示例。实际配置文件由 bb_setup.py 生成于 ~/.bb-fetch/config.json，用户无需手写。",
+
+  "base_url": "https://your-school.blackboard.com",
+  "credential_service": "bb-fetch",
+
+  "state_dir": "state",
+  "download_dir": "~/Downloads/bb-fetch",
+  "aria2c": "aria2c",
+
+  "courses": [
+    {"name": "2026I 11年级IB物理17(PHYSICS) IB HL N(26-27)", "id": "_12345_1", "label": "IB物理 HL"},
+    {"name": "2026I 11年级IB数学分析24(MATH ANALYSIS) IB HL N(26-27)", "id": "_12346_1", "label": "IB数学AA HL"}
+  ],
+
+  "course_discovery": {
+    "_comment": "可选：按规则自动筛课。一般不用；重跑 bb_setup.py --refresh 手动重选更可靠。",
+    "enabled": false,
+    "grade_marker": "",
+    "include": "",
+    "exclude": ""
+  }
+}

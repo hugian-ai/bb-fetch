@@ -1,13 +1,14 @@
 ---
 name: bb-fetch
-description: |
-  从学校 Blackboard（BB）把课程资料"取回来"的工具：自动守望课程内容与公告的新增、生成可读提醒，并按需多线程下载课件/作业等文件。
-  触发场景：用户提到 Blackboard / BB / 学校课程平台 / 课程资料 / 课件 / 作业 / 讲义 / 公告 / 校历，想"盯更新""有新资料通知我""把某个文件下下来""把课程资料同步到本地"时使用。
-  也用于「配置本校 BB 账号」「诊断能不能连上学校 BB」等一次性设置。
-description_en: |
-  Watch a school Blackboard (Bb) site for new course content/announcements and download course files via aria2.
-  Use when the user mentions Blackboard, Bb, school course portal, course materials, lecture slides, homework,
-  announcements, or wants "notify me when new material is posted" / "download this course file".
+slug: bb-fetch
+version: 0.1.0
+displayName: bb-fetch
+summary: 守望学校 Blackboard 课程更新，点名下载课件与作业；凭据进系统凭据库，脚本零第三方依赖。
+description: 从学校 Blackboard（BB）把课程资料"取回来"：守望课程内容与公告的新增、只在真更新时生成可读提醒，并按需多线程下载课件/作业。触发词：Blackboard、BB、学校课程平台、课程资料、课件、讲义、公告、校历、"盯更新"、"有新资料通知我"、"把某个文件下下来"、"把课程资料同步到本地"，也用于配置本校 BB 账号、诊断 BB 连通性。
+description_en: Watch a school Blackboard (Bb) site for new course content/announcements and download course files; use when the user mentions Blackboard, school course portal, course materials, lecture slides, homework, or wants to be notified of new material.
+license: MIT
+homepage: https://github.com/hugian-ai/bb-fetch
+tags: [blackboard, education, course-materials, download, watcher]
 agent_created: true
 ---
 

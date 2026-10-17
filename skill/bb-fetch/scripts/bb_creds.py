@@ -19,6 +19,7 @@ CLI：
   python bb_creds.py del  [--service S]
   python bb_creds.py where            # 打印各后端可用性
 """
+import ctypes
 import json
 import os
 import shutil
@@ -78,7 +79,7 @@ class WinCredBackend(_Backend):
 
     @classmethod
     def _api(cls):
-        import ctypes
+        # ctypes.wintypes 仅 Windows 可用，故留在函数内（available() 已做平台守卫）
         import ctypes.wintypes as wt
         adv = ctypes.WinDLL("advapi32", use_last_error=True)
 
@@ -100,21 +101,19 @@ class WinCredBackend(_Backend):
     @classmethod
     def get(cls, service):
         adv, wt, CREDENTIAL = cls._api()
-        p = __import__("ctypes").POINTER(CREDENTIAL)()
-        if not adv.CredReadW(service, 1, 0, __import__("ctypes").byref(p)):
+        p = ctypes.POINTER(CREDENTIAL)()
+        if not adv.CredReadW(service, 1, 0, ctypes.byref(p)):
             return None
         try:
             c = p.contents
             n = c.CredentialBlobSize
-            import ctypes as _c
-            raw = _c.string_at(c.CredentialBlob, n) if n else b""
+            raw = ctypes.string_at(c.CredentialBlob, n) if n else b""
             return raw.decode("utf-16-le", "replace")
         finally:
             adv.CredFree(p)
 
     @classmethod
     def set(cls, service, secret):
-        import ctypes
         adv, wt, CREDENTIAL = cls._api()
         blob = secret.encode("utf-16-le")
         buf = (ctypes.c_byte * len(blob)).from_buffer_copy(blob)
@@ -132,7 +131,6 @@ class WinCredBackend(_Backend):
 
     @classmethod
     def delete(cls, service):
-        import ctypes
         adv, _, _ = cls._api()
         if not adv.CredDeleteW(service, 1, 0):
             err = ctypes.get_last_error()
@@ -239,7 +237,38 @@ class KeyringBackend(_Backend):
 
 
 class FileBackend(_Backend):
+    """最后兜底。明文落盘本身就是降级，所以读和写都要显式告警。"""
     name = "file"
+    _warned = False
+
+    @classmethod
+    def _warn(cls, action):
+        if cls._warned:
+            return
+        cls._warned = True
+        sys.stderr.write(
+            "[bb-fetch 安全提示] %s凭据时将使用明文文件 %s（目标权限 0600）。\n"
+            "            更安全的做法是配置系统凭据库：Windows 凭据管理器 / macOS 钥匙串 /\n"
+            "            Linux Secret Service（libsecret），或用环境变量 BB_USER / BB_PASS。\n"
+            % (action, FILE_STORE))
+
+    @classmethod
+    def _enforce_0600(cls):
+        """把明文库收窄到 0600。Windows 的 chmod 只能切只读位、收不窄，
+        此时如实告知，不假装安全。"""
+        try:
+            os.chmod(FILE_STORE, stat.S_IRUSR | stat.S_IWUSR)
+        except OSError:
+            pass
+        try:
+            mode = stat.S_IMODE(os.stat(FILE_STORE).st_mode)
+        except OSError:
+            return
+        if mode != stat.S_IRUSR | stat.S_IWUSR:
+            sys.stderr.write(
+                "[bb-fetch 安全提示] 无法将 %s 收窄到 0600（当前 %s），\n"
+                "            本平台的文件权限模型受限，请优先改用系统凭据库。\n"
+                % (FILE_STORE, oct(mode)))
 
     @classmethod
     def available(cls):
@@ -257,7 +286,10 @@ class FileBackend(_Backend):
 
     @classmethod
     def get(cls, service):
-        return cls._read().get(service)
+        v = cls._read().get(service)
+        if v:
+            cls._warn("读取")
+        return v
 
     @classmethod
     def set(cls, service, secret):
@@ -270,6 +302,8 @@ class FileBackend(_Backend):
             os.chmod(FILE_STORE, stat.S_IRUSR | stat.S_IWUSR)  # 0600
         except OSError:
             pass
+        cls._enforce_0600()
+        cls._warn("写入")
         return True
 
     @classmethod

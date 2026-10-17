@@ -1,7 +1,7 @@
 ---
 name: bb-fetch
 slug: bb-fetch
-version: 0.1.0
+version: 0.1.1
 displayName: bb-fetch
 summary: 守望学校 Blackboard 课程更新，点名下载课件与作业；凭据进系统凭据库，脚本零第三方依赖。
 description: 从学校 Blackboard（BB）把课程资料"取回来"：守望课程内容与公告的新增、只在真更新时生成可读提醒，并按需多线程下载课件/作业。触发词：Blackboard、BB、学校课程平台、课程资料、课件、讲义、公告、校历、"盯更新"、"有新资料通知我"、"把某个文件下下来"、"把课程资料同步到本地"，也用于配置本校 BB 账号、诊断 BB 连通性。
